@@ -1,19 +1,18 @@
 import { ReactNode } from "react"
-import { Box, Flex, Text } from "@chakra-ui/react"
+import { Box, Flex } from "@chakra-ui/react"
+import AdminSidebar from "@/components/common/AdminSidebar"
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-    return (
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body>
         <Flex minH="100vh">
-
-        <Box flex="1" p={6} bg="white" _dark={{ bg: "gray.900" }}>
-            {children ?? (
-            <Box py={20} textAlign="center">
-                <Text fontSize="lg" color="gray.500">
-                This admin section is under construction.
-                </Text>
-            </Box>
-            )}
-        </Box>
+          <AdminSidebar />
+          <Box flex="1" p={6} bg="gray.50" _dark={{ bg: "gray.800" }}>
+            {children}
+          </Box>
         </Flex>
-    )
+      </body>
+    </html>
+  )
 }
