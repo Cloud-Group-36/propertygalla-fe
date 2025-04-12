@@ -1,4 +1,3 @@
-// src/app/admin/layout.tsx
 import { ReactNode } from "react"
 import { Box, Flex, Text } from "@chakra-ui/react"
 

@@ -20,13 +20,14 @@ import {
     import Link from "next/link"
     import { useState } from "react"
     import { HiMenu } from "react-icons/hi"
-    import { FaHome, FaBuilding, FaUserCircle, FaHeart } from "react-icons/fa"
+    import { FaHome, FaBuilding, FaUserCircle, FaHeart, FaDoorOpen } from "react-icons/fa"
 
     const links = [
     { label: "Home", href: "/", icon: <FaHome /> },
     { label: "Properties", href: "/properties", icon: <FaBuilding /> },
     { label: "Dashboard", href: "/dashboard", icon: <FaUserCircle /> },
     { label: "My List", href: "/my-list", icon: <FaHeart /> },
+    { label: "Login/Sign up", href: "/auth", icon: <FaDoorOpen /> },
     ]
 
     export default function Navbar() {

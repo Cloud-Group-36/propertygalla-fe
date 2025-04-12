@@ -1,5 +1,5 @@
-import PagePlaceholder from "@/components/common/PagePlaceholder"
+import AuthForm from "@/components/common/AuthForm"
 
-export default function Authenticate() {
-  return <PagePlaceholder title="Manage Users" />
+export default function AuthPage() {
+  return <AuthForm />
 }
