@@ -1,10 +1,16 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { Box, Button, Heading } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Heading,
+  SimpleGrid,
+} from "@chakra-ui/react";
 import axios from "axios";
 import { toaster } from "@/components/ui/toaster";
-import Field from "@/components/common/field";
+import Field from "@/components/common/Field";
+import Image from "next/image";
 
 interface PropertyFormData {
   title: string;
@@ -86,10 +92,11 @@ const AddProperty: React.FC = () => {
 
   return (
     <Box
+
       maxW="600px"
       mx="auto"
-      mt={8}
-      p={6}
+      mt={{ base: 4, md: 8 }}
+      p={{ base: 4, md: 6 }}
       borderWidth="1px"
       borderRadius="lg"
       boxShadow="md"
@@ -97,6 +104,7 @@ const AddProperty: React.FC = () => {
       <Heading size="lg" mb={6} textAlign="center">
         Add New Property
       </Heading>
+
       <form onSubmit={handleSubmit}>
         <Field
           name="title"
@@ -132,51 +140,56 @@ const AddProperty: React.FC = () => {
           onChange={handleChange}
           isRequired
         />
-<Box mt={4}>
-  <Heading size="sm" mb={2}>Upload Images</Heading>
 
-  {/* Hidden file input */}
-  <input
-    type="file"
-    accept="image/*"
-    multiple
-    ref={fileInputRef}
-    style={{ display: "none" }}
-    onChange={(e) => {
-      const files = Array.from(e.target.files || []);
-      const urls = files.map((file) => URL.createObjectURL(file as File));
+        <Box mt={4}>
+          <Heading size="sm" mb={2}>
+            Upload Images
+          </Heading>
 
-      setFormData((prev) => ({
-        ...prev,
-        image_urls: [...prev.image_urls, ...urls],
-      }));
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const files = Array.from(e.target.files || []);
+              const urls = files.map((file) =>
+                URL.createObjectURL(file as File)
+              );
 
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }}
-  />
+              setFormData((prev) => ({
+                ...prev,
+                image_urls: [...prev.image_urls, ...urls],
+              }));
 
-  {/* Styled upload button */}
-  <Button
-    colorScheme="blue"
-    onClick={() => fileInputRef.current?.click()}
-  >
-    Upload Images
-  </Button>
-</Box>
+              if (fileInputRef.current) fileInputRef.current.value = "";
+            }}
+          />
 
+          <Button
+            bg="blue.500"
+            color="white"
+            _hover={{ bg: "blue.600" }}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            Upload Images
+          </Button>
+        </Box>
 
-        {/* Image Previews */}
-        <Box mt={4} display="flex" flexWrap="wrap" gap={3}>
+        {/* Responsive Image Grid */}
+        <SimpleGrid columns={{ base: 2, sm: 3 }} gap={4} mt={4}>
           {formData.image_urls.map((url, index) => (
             <Box
               key={index}
               position="relative"
-              boxSize="100px"
+              w="100%"
+              h="100px"
               borderRadius="md"
               overflow="hidden"
               border="1px solid #CBD5E0"
             >
-              <img
+              <Image
                 src={url}
                 alt={`Image ${index + 1}`}
                 style={{
@@ -187,7 +200,9 @@ const AddProperty: React.FC = () => {
               />
               <Button
                 size="xs"
-                colorScheme="red"
+                bg="red.500"
+                color="white"
+                _hover={{ bg: "red.600" }}
                 position="absolute"
                 top="2px"
                 right="2px"
@@ -198,7 +213,7 @@ const AddProperty: React.FC = () => {
               </Button>
             </Box>
           ))}
-        </Box>
+        </SimpleGrid>
 
         <Field
           name="status"
@@ -212,7 +227,14 @@ const AddProperty: React.FC = () => {
           ]}
         />
 
-        <Button colorScheme="blue" type="submit" width="full" mt={6}>
+        <Button
+          type="submit"
+          bg="blue.500"
+          color="white"
+          _hover={{ bg: "blue.600" }}
+          width="full"
+          mt={6}
+        >
           Add Property
         </Button>
       </form>

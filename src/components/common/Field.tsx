@@ -8,15 +8,18 @@ import {
 interface FieldPropsBase {
   name: string;
   label: string;
-  type?: "text" | "textarea" | "select" | "number" | "file";
+  type?: "text" | "password" | "textarea" | "select" | "number" | "file";
   placeholder?: string;
   value?: string | number;
-  onChange: (e: React.ChangeEvent<any>) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+
   options?: { value: string; label: string }[]; // only for select
   isRequired?: boolean;
   accept?: string; // only for file
   min?: number; // only for number
   inputRef?: React.Ref<HTMLInputElement>; // ✅ added
+  disabled?: boolean;
+
 }
 
 const Field: React.FC<FieldPropsBase> = ({
@@ -30,7 +33,9 @@ const Field: React.FC<FieldPropsBase> = ({
   isRequired = false,
   accept,
   min,
-  inputRef
+  inputRef,
+  disabled,
+
 }) => {
   return (
     <ChakraField.Root required={isRequired} mt={4}>
@@ -47,6 +52,7 @@ const Field: React.FC<FieldPropsBase> = ({
           name={name}
           value={value}
           onChange={onChange}
+          disabled={disabled} 
           style={{
             width: "100%",
             padding: "0.5rem",
@@ -72,6 +78,7 @@ const Field: React.FC<FieldPropsBase> = ({
           accept={accept}
           min={min}
           multiple={type === "file"}
+          disabled={disabled} 
         />
       )}
     </ChakraField.Root>
