@@ -46,8 +46,9 @@ const BaseModal: React.FC<BaseModalProps> = ({
         py={4}
         maxW="600px"
         mx="auto"
+        my="auto"
+        maxH="90vh"
         boxShadow="2xl"
-        // border= "1px solid black"
         borderTopRadius="10px"
         borderBottomRadius="10px"
       >
