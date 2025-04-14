@@ -1,45 +1,32 @@
-"use client";
+"use client"
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import { Button, Box, Heading, Stack } from "@chakra-ui/react";
+import { Box, Heading, Tabs } from "@chakra-ui/react"
+import DashboardOverview from "@/components/common/DashboardOverview"
+import DashboardAccount from "@/components/common/DashboardAccount"
+import DashboardProperties from "@/components/common/DashboardProperties"
 
-export default function Dashboard() {
-  const router = useRouter();
-
-  const goToAddProperty = () => {
-    router.push("/add-property");
-  };
-
-  const goToProfile = () => {
-    router.push("/profile");
-  };
-
+export default function UserDashboardPage() {
   return (
-    <Box p={6}>
-      <Heading size="lg" mb={4}>
-        Dashboard
-      </Heading>
+    <Box px={6} py={10} maxW="7xl" mx="auto">
+      <Heading size="lg" mb={6}>My Dashboard</Heading>
 
-      <Stack direction="row" gap={4}>
-        <Button
-          bg="blue.500"
-          color="white"
-          _hover={{ bg: "blue.600" }}
-          onClick={goToAddProperty}
-        >
-          Add Property
-        </Button>
+      <Tabs.Root defaultValue="dashboard">
+        <Tabs.List>
+          <Tabs.Trigger value="dashboard">Dashboard</Tabs.Trigger>
+          <Tabs.Trigger value="account">Account</Tabs.Trigger>
+          <Tabs.Trigger value="properties">My Properties</Tabs.Trigger>
+        </Tabs.List>
 
-        <Button
-          bg="blue.500"
-          color="white"
-          _hover={{ bg: "blue.600" }}
-          onClick={goToProfile}
-        >
-          Profile
-        </Button>
-      </Stack>
+        <Tabs.Content value="dashboard">
+          <DashboardOverview />
+        </Tabs.Content>
+        <Tabs.Content value="account">
+          <DashboardAccount />
+        </Tabs.Content>
+        <Tabs.Content value="properties">
+          <DashboardProperties />
+        </Tabs.Content>
+      </Tabs.Root>
     </Box>
-  );
+  )
 }

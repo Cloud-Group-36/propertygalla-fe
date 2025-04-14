@@ -8,7 +8,7 @@ import {
 interface FieldPropsBase {
   name: string;
   label: string;
-  type?: "text" | "password" | "textarea" | "select" | "number" | "file";
+  type?: "text" | "password" | "textarea" | "select" | "number" | "file" | "email";
   placeholder?: string;
   value?: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;

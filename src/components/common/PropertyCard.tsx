@@ -14,23 +14,27 @@ import {
     export interface PropertyCardProps {
     id: string
     title: string
-    location: string
+    address: string
     price: string
     imageUrl?: string
+    actions?: React.ReactNode
+    onClick?: () => void
     }
 
     export default function PropertyCard({
     id,
     title,
-    location,
+    address,
     price,
     imageUrl = "/placeholder.png",
+    actions,
+    onClick
     }: PropertyCardProps) {
     const router = useRouter()
 
     return (
         <Box
-        onClick={() => router.push(`/properties/${id}`)}
+        onClick={onClick ? onClick : () => router.push(`/properties/${id}`)}
         cursor="pointer"
         borderRadius="lg"
         overflow="hidden"
@@ -45,6 +49,7 @@ import {
             transform: "scale(1.015)",
         }}
         >
+
         <Image
             src={imageUrl}
             alt={title}
@@ -53,27 +58,30 @@ import {
             objectFit="cover"
         />
         <VStack align="start" px={4} py={3} gap={2}>
-            <HStack align="center" gap={2}>
+        <HStack align="center" gap={2}>
             <FaHome />
             <Heading size="md" color="var(--text-heading)">
-                {title}
+            {title}
             </Heading>
-            </HStack>
+        </HStack>
 
-            <HStack align="center" gap={2}>
+        <HStack align="center" gap={2}>
             <FaMapMarkerAlt size={14} />
             <Text fontSize="sm" color="gray.500">
-                {location}
+            {address}
             </Text>
-            </HStack>
+        </HStack>
 
-            <HStack align="center" gap={2}>
+        <HStack align="center" gap={2}>
             <FaTag size={14} />
             <Text fontWeight="bold" fontSize="md">
-                {price}
+            {price}
             </Text>
-            </HStack>
+        </HStack>
+
+        {actions && <Box pt={2}>{actions}</Box>}
         </VStack>
+
         </Box>
     )
 }

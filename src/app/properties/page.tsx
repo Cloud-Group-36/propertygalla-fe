@@ -13,21 +13,21 @@ const sampleProperties: PropertyCardProps[] = [
   {
     id: "1",
     title: "Modern Loft",
-    location: "New York",
+    address: "New York",
     price: "$850,000",
     imageUrl: "/placeholder.jpeg",
   },
   {
     id: "2",
     title: "Beachside Villa",
-    location: "California",
+    address: "California",
     price: "$1,200,000",
     imageUrl: "/placeholder.jpeg",
   },
   {
     id: "3",
     title: "Downtown Studio",
-    location: "Texas",
+    address: "Texas",
     price: "$480,000",
     imageUrl: "/placeholder.jpeg",
   },
@@ -41,7 +41,7 @@ export default function PropertiesPage() {
   // Filter logic (basic client-side filtering)
   const filteredProperties = sampleProperties.filter((property) => {
     const priceValue = parseInt(property.price.replace(/\D/g, ""))
-    const matchesLocation = selectedLocation === "" || property.location.toLowerCase() === selectedLocation
+    const matchesLocation = selectedLocation === "" || property.address.toLowerCase() === selectedLocation
     const matchesType = selectedType === "" || property.title.toLowerCase().includes(selectedType)
     const matchesPrice = priceValue <= maxPrice
   
