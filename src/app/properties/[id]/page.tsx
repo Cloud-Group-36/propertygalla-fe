@@ -13,6 +13,7 @@ const sampleProperties: (PropertyCardProps & {
   images: string[]
   status: "available" | "rented" | "hidden"
   phone: string
+  email: string,
   createdAt: string
   updatedAt: string
 })[] = [
@@ -26,6 +27,8 @@ const sampleProperties: (PropertyCardProps & {
     images: ["/placeholder.jpeg", "/placeholder.jpeg"],
     status: "available",
     phone: "01768984525",
+    email: "example@exmple.com",
+
 
     createdAt: "2024-04-01T10:00:00Z",
     updatedAt: "2024-04-10T15:30:00Z",
@@ -40,7 +43,7 @@ const sampleProperties: (PropertyCardProps & {
     images: ["/placeholder.jpeg", "/placeholder.jpeg"],
     status: "rented",
     phone: "01768984525",
-
+    email: "example@exmple.com",
     createdAt: "2024-03-21T12:00:00Z",
     updatedAt: "2024-04-08T09:30:00Z",
   },
@@ -53,6 +56,7 @@ const sampleProperties: (PropertyCardProps & {
     description: "Compact studio perfect for working professionals.",
     images: ["/placeholder.jpeg", "/placeholder.jpeg"],
     status: "available",
+    email: "example@exmple.com",
     phone: "01768984525",
     createdAt: "2024-04-05T11:00:00Z",
     updatedAt: "2024-04-11T17:45:00Z",
@@ -82,6 +86,7 @@ export default function SpecificPropertyPage() {
       images={property.images}
       status={property.status}
       phone={property.phone}
+      email={property.email}
       createdAt={property.createdAt}
       updatedAt={property.updatedAt}
     />

@@ -14,9 +14,7 @@ export default function Dashboard() {
   const goToProfile = () => {
     router.push("/profile");
   };
-  const goToProperty = () => {
-    router.push("/view-property");
-  };
+
 
   return (
     <Box p={6}>
@@ -43,14 +41,6 @@ export default function Dashboard() {
           Profile
         </Button>
 
-        <Button
-          bg="blue.500"
-          color="white"
-          _hover={{ bg: "blue.600" }}
-          onClick={goToProperty}
-        >
-          View Property
-        </Button>
 
       </Stack>
     </Box>

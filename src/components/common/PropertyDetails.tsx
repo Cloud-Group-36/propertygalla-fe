@@ -28,6 +28,7 @@ interface PropertyDetailsProps {
   images: string[];
   status: "available" | "rented" | "hidden";
   phone: string;
+  email: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,6 +55,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
   price,
   images,
   status,
+  email,
   phone,
   createdAt,
   updatedAt,
@@ -175,12 +177,12 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
         <Text>
           📧{" "}
           <Link
-            href={`mailto:someone@example.com`}
+            href={`mailto:${email}`}
             color="blue.500"
             target="_blank"
             rel="noopener noreferrer"
           >
-            someone@example.com
+            {email}
           </Link>
         </Text>
         <Text>
