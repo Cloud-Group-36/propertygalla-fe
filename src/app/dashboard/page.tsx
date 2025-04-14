@@ -15,6 +15,7 @@ export default function Dashboard() {
     router.push("/profile");
   };
 
+
   return (
     <Box p={6}>
       <Heading size="lg" mb={4}>
@@ -39,6 +40,8 @@ export default function Dashboard() {
         >
           Profile
         </Button>
+
+
       </Stack>
     </Box>
   );
