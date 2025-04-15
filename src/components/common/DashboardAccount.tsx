@@ -1,31 +1,95 @@
 "use client"
 
-import { Box, Text, Button, VStack } from "@chakra-ui/react"
+import { useEffect, useState } from "react"
+import {
+  Box,
+  Text,
+  Button,
+  VStack,
+  Spinner,
+} from "@chakra-ui/react"
 import Field from "@/components/common/Field"
-import { useState } from "react"
 import { toaster } from "@/components/ui/toaster"
+import { useAuth } from "@/context/AuthContext"
+import { getUserById, changePassword } from "@/services/userService"
+import { User } from "@/types"
+import { isAxiosError } from "axios"
 
 export default function DashboardAccount() {
-  const [formData, setFormData] = useState({
-    name: "Khaled",
-    email: "khaled@example.com",
-    currentPassword: "",
-    newPassword: "",
-  })
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(true)
+  const [formData, setFormData] = useState<User | null>(null)
+  const [oldPassword, setOldPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        if (user) {
+          const data = await getUserById(user.userId)
+          setFormData(data)
+        }
+      } catch (err) {
+        console.error(err)
+        toaster.error({ title: "Error", description: "Failed to fetch user info" })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUser()
+  }, [user])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    if (!formData) return
+    setFormData((prev) => (prev ? { ...prev, [name]: value } : null))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    toaster.success({
-      title: "Profile updated.",
-      description: "Your account information has been saved.",
-    })
+  
+    if (!formData) {
+      toaster.error({ title: "Missing user data." })
+      return
+    }
+  
+    try {
+      if (newPassword && oldPassword) {
+        await changePassword(formData.email, oldPassword, newPassword)
+        toaster.success({
+          title: "Password changed successfully",
+        })
+        setOldPassword("")
+        setNewPassword("")
+      }
+  
+      toaster.success({
+        title: "Profile updated.",
+        description: "Your account information has been saved.",
+      })
+    } catch (err: unknown) {
+      const message =
+        isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : "Password change failed."
+  
+      toaster.error({
+        title: "Error",
+        description: message,
+      })
+    }
+  }
+  
+
+  if (loading || !formData) {
+    return (
+      <Box textAlign="center" py={10}>
+        <Spinner size="lg" />
+      </Box>
+    )
   }
 
   return (
@@ -60,18 +124,29 @@ export default function DashboardAccount() {
             isRequired
           />
           <Field
-            name="currentPassword"
-            label="Current Password"
-            type="password"
-            value={formData.currentPassword}
+            name="phone"
+            label="Phone"
+            type="number"
+            value={formData.phone}
             onChange={handleChange}
           />
+
+          <Text fontWeight="semibold" mt={6}>Change Password</Text>
+
+          <Field
+            name="oldPassword"
+            label="Old Password"
+            type="password"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+          />
+
           <Field
             name="newPassword"
             label="New Password"
             type="password"
-            value={formData.newPassword}
-            onChange={handleChange}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
           />
 
           <Button

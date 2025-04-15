@@ -1,50 +1,51 @@
-// src/app/properties/page.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Box, Flex } from "@chakra-ui/react"
 import SearchBar from "@/components/common/SearchBar"
 import DropdownFilter from "@/components/common/DropdownFilter"
 import PriceSlider from "@/components/common/PriceSlider"
 import PropertyGrid from "@/components/common/PropertyGrid"
+import { getAllProperties } from "@/services/propertyService"
+import { Property } from "@/types"
 import { PropertyCardProps } from "@/components/common/PropertyCard"
 
-const sampleProperties: PropertyCardProps[] = [
-  {
-    id: "1",
-    title: "Modern Loft",
-    address: "New York",
-    price: "$850,000",
-    imageUrl: "/placeholder.jpeg",
-  },
-  {
-    id: "2",
-    title: "Beachside Villa",
-    address: "California",
-    price: "$1,200,000",
-    imageUrl: "/placeholder.jpeg",
-  },
-  {
-    id: "3",
-    title: "Downtown Studio",
-    address: "Texas",
-    price: "$480,000",
-    imageUrl: "/placeholder.jpeg",
-  },
-]
-
 export default function PropertiesPage() {
+  const [properties, setProperties] = useState<Property[]>([])
   const [selectedLocation, setSelectedLocation] = useState("")
   const [selectedType, setSelectedType] = useState("")
   const [maxPrice, setMaxPrice] = useState(1000000)
 
-  // Filter logic (basic client-side filtering)
-  const filteredProperties = sampleProperties.filter((property) => {
-    const priceValue = parseInt(property.price.replace(/\D/g, ""))
-    const matchesLocation = selectedLocation === "" || property.address.toLowerCase() === selectedLocation
-    const matchesType = selectedType === "" || property.title.toLowerCase().includes(selectedType)
-    const matchesPrice = priceValue <= maxPrice
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const data = await getAllProperties()
+        setProperties(data)
+      } catch (err) {
+        console.error("Failed to fetch properties:", err)
+      }
+    }
+
+    fetchProperties()
+  }, [])
+
+  const displayProperties: PropertyCardProps[] = properties.map((p) => ({
+    id: p.propertyId,
+    title: p.title,
+    address: `${p.city}, ${p.state}, ${p.neighborhood}`,
+    price: `RM ${p.price.toLocaleString()}`,
+    imageUrl: p.images?.[0] || "placeholder.jpeg",
+  }))
   
+
+  const filteredProperties = displayProperties.filter((property) => {
+    const priceValue = parseInt(property.price.replace(/\D/g, ""))
+    const matchesLocation =
+      selectedLocation === "" || property.address.toLowerCase().includes(selectedLocation)
+    const matchesType =
+      selectedType === "" || property.title.toLowerCase().includes(selectedType)
+    const matchesPrice = priceValue <= maxPrice
+
     return matchesLocation && matchesType && matchesPrice
   })
 
@@ -64,9 +65,8 @@ export default function PropertiesPage() {
           label="Location"
           options={[
             { label: "All", value: "" },
-            { label: "New York", value: "new york" },
-            { label: "California", value: "california" },
-            { label: "Texas", value: "texas" },
+            { label: "Cyberjaya", value: "cyberjaya" },
+            { label: "Petaling Jaya", value: "petaling jaya" },
           ]}
           onChange={setSelectedLocation}
         />
@@ -75,7 +75,8 @@ export default function PropertiesPage() {
           options={[
             { label: "All", value: "" },
             { label: "Apartment", value: "apartment" },
-            { label: "House", value: "house" },
+            { label: "Bungalow", value: "bungalow" },
+            { label: "Studio", value: "studio" },
             { label: "Villa", value: "villa" },
           ]}
           onChange={setSelectedType}

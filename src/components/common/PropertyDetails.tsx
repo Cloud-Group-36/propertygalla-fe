@@ -1,76 +1,45 @@
-import { useState } from "react";
+"use client"
+
 import {
-  Box,
-  Text,
-  Image,
-  Heading,
-  VStack,
-  HStack,
-  Button,
-  Textarea,
-  Flex,
-  useDisclosure,
-  Link,
-} from "@chakra-ui/react";
-import { Avatar } from "@chakra-ui/avatar";
-import { useColorModeValue } from "@chakra-ui/color-mode";
+  Box, Text, Image, Heading, VStack, HStack, Button, Textarea,
+  Flex, useDisclosure, Link, Spinner, Badge, SimpleGrid,
+} from "@chakra-ui/react"
+import { useColorModeValue } from "@chakra-ui/color-mode"
+import { useEffect, useState } from "react"
+import { Feedback, Property } from "@/types"
+import { getFeedbackByOwner, giveFeedback } from "@/services/feedbackService"
+import { saveProperty } from "@/services/savedPropertyService"
+import BaseModal from "@/components/common/BaseModal"
+import Slider from "react-slick"
+import "slick-carousel/slick/slick.css"
+import "slick-carousel/slick/slick-theme.css"
+import { useAuth } from "@/context/AuthContext"
+import { isAxiosError } from "axios"
 
-import BaseModal from "@/components/common/BaseModal";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-
-interface PropertyDetailsProps {
-  title: string;
-  description: string;
-  location: string;
-  price: number;
-  images: string[];
-  status: "available" | "rented" | "hidden";
-  phone: string;
-  email: string;
-  createdAt: string;
-  updatedAt: string;
+interface PropertyDetailsProps extends Property {
+  phone: string
+  email: string
 }
 
-const feedbacks = [
-  {
-    name: "Sarah Johnson",
-    date: "2025-01-15",
-    comment:
-      "Great location and beautiful interior! The natural lighting is amazing.",
-  },
-  {
-    name: "Mike Brown",
-    date: "2025-01-10",
-    comment:
-      "The apartment is well-maintained and the amenities are excellent.",
-  },
-];
-
 const PropertyDetails: React.FC<PropertyDetailsProps> = ({
-  title,
-  description,
-  location,
-  price,
-  images,
-  status,
-  email,
-  phone,
-  createdAt,
-  updatedAt,
+  title, description, price, images = [], status, email, phone,
+  createdAt, updatedAt, ownerId, rooms, bathrooms, parking, area,
+  state, city, neighborhood, propertyId,
 }) => {
-  const [saved, setSaved] = useState(false);
-  const { open: isOpen, onOpen, onClose } = useDisclosure();
-
-  const toggleSaved = () => setSaved((prev) => !prev);
-  const bg = useColorModeValue("white", "gray.800");
+  const [saved, setSaved] = useState(false)
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([])
+  const [loading, setLoading] = useState(true)
+  const [comment, setComment] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const { user } = useAuth()
+  const disclosure = useDisclosure()
+  const bg = useColorModeValue("white", "gray.800")
 
   const statusColor = {
     available: "green",
     rented: "red",
     hidden: "gray",
-  }[status];
+  }[status]
 
   const sliderSettings = {
     dots: true,
@@ -78,18 +47,68 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-  };
+  }
+
+
+  const fetchFeedbacks = async () => {
+    try {
+      const { data } = await getFeedbackByOwner(ownerId)
+      setFeedbacks(data)
+    } catch (err) {
+      console.error("Failed to fetch feedbacks", err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchFeedbacks()
+  }, [ownerId])
+
+  const handleSubmitFeedback = async () => {
+    if (!user?.userId) {
+      alert("You must be logged in to leave feedback.")
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      await giveFeedback({
+        reviewerId: user.userId,
+        ownerId,
+        comment,
+        rating: 5,
+      })
+      setComment("")
+      await fetchFeedbacks()
+    } catch (err: unknown) {
+      const message = isAxiosError(err) && err.response?.data?.message
+        ? err.response.data.message
+        : "Failed to submit feedback"
+      alert(message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleSaveProperty = async () => {
+    if (!user?.userId || saved) return
+
+    try {
+      await saveProperty({ userId: user.userId, propertyId })
+      setSaved(true)
+    } catch (err) {
+      const msg = isAxiosError(err) && err.response?.data?.message
+        ? err.response.data.message
+        : "Failed to save property"
+      alert(msg)
+    }
+  }
 
   return (
     <Box maxW="7xl" mx="auto" mt={8} px={{ base: 4, md: 8 }} py={10}>
-      <Flex
-        direction={{ base: "column", md: "row" }}
-        gap={10}
-        align="start"
-        justify="center"
-      >
-        {/* Image Slider */}
-        <Box flex={1.5} maxW={{ base: "100%", md: "60%" }} overflow="hidden">
+      <Flex direction={{ base: "column", md: "row" }} gap={10} align="start">
+        <Box flex={1.5} maxW={{ base: "100%", md: "60%" }}>
           <Slider {...sliderSettings}>
             {images.map((url, index) => (
               <Image
@@ -97,7 +116,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
                 src={url}
                 alt={`Property image ${index + 1}`}
                 borderRadius="xl"
-                maxH="400px"
+                maxH="450px"
                 objectFit="cover"
                 w="full"
               />
@@ -105,126 +124,105 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
           </Slider>
         </Box>
 
-        {/* Property Info */}
-        <VStack
-          flex={1}
-          align="start"
-          gap={4}
-          w="full"
-          maxW={{ base: "100%", md: "35%" }}
-        >
-          <Flex w="full" align="center" justify="space-between">
-            <Heading size="md">{title}</Heading>
-            <Button size="sm" bg={statusColor} color={"white"} cursor="default">
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </Button>
+        <VStack flex={1} align="start" gap={4} w="full" maxW="35%">
+          <Flex w="full" justify="space-between" align="center">
+            <Heading size="lg">{title}</Heading>
+            <Badge colorScheme={statusColor} fontSize="sm" px={3} py={1} borderRadius="md">
+              {status.toUpperCase()}
+            </Badge>
           </Flex>
 
-          <Text fontSize="sm" color="pink.500">
-            📍 {location}
-          </Text>
-          <Text fontSize="2xl" fontWeight="bold">
-            ${price.toLocaleString(undefined, { minimumFractionDigits: 2 })} /
-            month
-          </Text>
+          <Text color="pink.500" fontWeight="medium">📍 {neighborhood}, {city}, {state}</Text>
+          <Text fontSize="2xl" fontWeight="bold">RM {price.toLocaleString()}</Text>
           <Text>{description}</Text>
 
-          <HStack gap={3} pt={2}>
-            <Avatar name="John Smith" />
-            <Box>
-              <Text fontWeight="bold">John Smith</Text>
-              <Text fontSize="sm" color="gray.500">
-                Property Owner
-              </Text>
-            </Box>
-          </HStack>
+          <Box h="1px" bg="gray.300" w="full" />
 
-          <Button
-            bg="blue.500"
-            color="white"
-            _hover={{ bg: "blue.600" }}
-            w="full"
-            onClick={onOpen}
-          >
+          <SimpleGrid columns={2} gap={4} fontSize="sm" w="full">
+            <Text><strong>Rooms:</strong> {rooms}</Text>
+            <Text><strong>Bathrooms:</strong> {bathrooms}</Text>
+            <Text><strong>Parking:</strong> {parking}</Text>
+            <Text><strong>Area:</strong> {area} sqft</Text>
+          </SimpleGrid>
+
+          <Box h="1px" bg="gray.300" w="full" />
+
+          <Box>
+            <Text fontWeight="semibold">Property Owner</Text>
+            <Text fontSize="sm" color="gray.500">Contact info available below</Text>
+          </Box>
+
+          <Button bg="blue.500" color="white" _hover={{ bg: "blue.600" }} w="full" onClick={disclosure.onOpen}>
             Contact Owner
           </Button>
 
           <Button
             variant={saved ? "solid" : "outline"}
-            bg="blue.500"
-            color="white"
-            _hover={{ bg: "blue.600" }}
+            bg={saved ? "blue.500" : undefined}
+            color={saved ? "white" : "blue.500"}
+            _hover={{ bg: "blue.600", color: "white" }}
             w="full"
-            onClick={toggleSaved}
+            onClick={handleSaveProperty}
+            disabled={!user}
           >
             {saved ? "Saved" : "Save to My List"}
           </Button>
 
-          <HStack fontSize="sm" color="gray.500" gap={4}>
+          <HStack fontSize="xs" color="gray.500" gap={4}>
             <Text>Created: {new Date(createdAt).toLocaleDateString()}</Text>
             <Text>Updated: {new Date(updatedAt).toLocaleDateString()}</Text>
           </HStack>
         </VStack>
       </Flex>
 
-      {/* Contact Owner Modal */}
-      <BaseModal
-        isOpen={isOpen}
-        onClose={onClose}
-        title="Contact Owner"
-        showSubmit={false}
-      >
-        <Text>
-          📧{" "}
-          <Link
-            href={`mailto:${email}`}
-            color="blue.500"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {email}
-          </Link>
-        </Text>
-        <Text>
-          📞{" "}
-          <Link href={`tel:${phone}`} color="blue.500">
-            {phone}
-          </Link>
-        </Text>
+      <BaseModal isOpen={disclosure.open} onClose={disclosure.onClose} title="Contact Owner" showSubmit={false}>
+        <VStack align="start" gap={3}>
+          <Text>📧 <Link href={`mailto:${email}`} color="blue.500">{email}</Link></Text>
+          <Text>📞 <Link href={`tel:${phone}`} color="blue.500">{phone}</Link></Text>
+        </VStack>
       </BaseModal>
 
-      {/* Feedback Section */}
       <Box mt={16}>
-        <Heading size="md" mb={4}>
-          Owner Feedback
-        </Heading>
+        <Heading size="md" mb={4}>Owner Feedback</Heading>
         <Textarea
-          placeholder="Share your thoughts about this property..."
+          placeholder="Share your thoughts..."
           mb={4}
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
         />
-        <Button bg="blue.500" color="white" _hover={{ bg: "blue.600" }} mb={8}>
+        <Button
+          loading={submitting}
+          onClick={handleSubmitFeedback}
+          bg="blue.500"
+          color="white"
+          _hover={{ bg: "blue.600" }}
+          mb={8}
+        >
           Submit Feedback
         </Button>
 
-        <VStack gap={6} align="stretch">
-          {feedbacks.map((fb, i) => (
-            <Box key={i} borderWidth="1px" borderRadius="lg" p={4} bg={bg}>
-              <HStack gap={4} mb={2}>
-                <Avatar name={fb.name} />
-                <Box>
-                  <Text fontWeight="bold">{fb.name}</Text>
-                  <Text fontSize="sm" color="gray.500">
-                    Posted on {new Date(fb.date).toLocaleDateString()}
-                  </Text>
-                </Box>
-              </HStack>
-              <Text>{fb.comment}</Text>
-            </Box>
-          ))}
-        </VStack>
+        {loading ? (
+          <Spinner />
+        ) : (
+          <VStack gap={6} align="stretch">
+            {feedbacks.map((fb) => (
+              <Box key={fb.feedbackId} borderWidth="1px" borderRadius="lg" p={4} bg={bg}>
+                <HStack gap={4} mb={2}>
+                  <Box>
+                    <Text fontWeight="bold">{fb.reviewerName}</Text>
+                    <Text fontSize="sm" color="gray.500">
+                      Posted on {new Date(fb.submittedAt).toLocaleDateString()}
+                    </Text>
+                  </Box>
+                </HStack>
+                <Text>{fb.comment}</Text>
+              </Box>
+            ))}
+          </VStack>
+        )}
       </Box>
     </Box>
-  );
-};
+  )
+}
 
-export default PropertyDetails;
+export default PropertyDetails

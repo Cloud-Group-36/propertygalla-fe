@@ -19,6 +19,7 @@ interface FieldPropsBase {
   min?: number; // only for number
   inputRef?: React.Ref<HTMLInputElement>; // ✅ added
   disabled?: boolean;
+  multiple?: boolean
 
 }
 
@@ -35,6 +36,7 @@ const Field: React.FC<FieldPropsBase> = ({
   min,
   inputRef,
   disabled,
+  multiple,
 
 }) => {
   return (
@@ -77,8 +79,8 @@ const Field: React.FC<FieldPropsBase> = ({
           onChange={onChange}
           accept={accept}
           min={min}
-          multiple={type === "file"}
           disabled={disabled} 
+          multiple={multiple}
         />
       )}
     </ChakraField.Root>
