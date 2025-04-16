@@ -1,27 +1,29 @@
-"use client"
+"use client";
+import api from "@/services/axios"; // or correct relative path
 
-import { useState } from "react"
+
+import { useState } from "react";
 import {
   Box,
   Button,
   VStack,
   Text,
-} from "@chakra-ui/react"
-import Field from "@/components/common/Field"
-import { CreatePropertyDTO, UpdatePropertyDTO } from "@/types"
-import { toaster } from "@/components/ui/toaster"
-import { createProperty, updateProperty } from "@/services/propertyService"
-import { useAuth } from "@/context/AuthContext"
+} from "@chakra-ui/react";
+import Field from "@/components/common/Field";
+import { CreatePropertyDTO, UpdatePropertyDTO } from "@/types";
+import { toaster } from "@/components/ui/toaster";
+import { createProperty, updateProperty } from "@/services/propertyService";
+import { useAuth } from "@/context/AuthContext";
 
 interface PropertyFormProps {
-  mode: "add" | "edit"
-  initialData?: UpdatePropertyDTO
-  onSuccess: () => void
-  onCancel: () => void
+  mode: "add" | "edit";
+  initialData?: UpdatePropertyDTO;
+  onSuccess: () => void;
+  onCancel: () => void;
 }
 
 export default function PropertyForm({ mode, initialData, onSuccess, onCancel }: PropertyFormProps) {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState<CreatePropertyDTO>({
     title: initialData?.title || "",
@@ -34,82 +36,95 @@ export default function PropertyForm({ mode, initialData, onSuccess, onCancel }:
     city: initialData?.city || "",
     neighborhood: initialData?.neighborhood || "",
     price: initialData?.price || 0,
-    ownerId: user?.userId || "",
+    ownerId: user?.userId || "", // will be included in form data
     images: [],
-  })
+  });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: ["price", "rooms", "bathrooms", "parking", "area"].includes(name) ? Number(value) : value,
-    }))
-  }
+      [name]: ["price", "rooms", "bathrooms", "parking", "area"].includes(name)
+        ? Number(value)
+        : value,
+    }));
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
+    const files = e.target.files;
     if (files) {
       setFormData((prev) => ({
         ...prev,
         images: Array.from(files),
-      }))
+      }));
     }
-  }
+  };
 
-  const handleSubmit = async () => {
-    try {
-      toaster.loading({ title: mode === "add" ? "Creating..." : "Updating..." })
-  
-      const form = new FormData()
-  
-      // 👇 PascalCase keys to match the DTO exactly
-      form.append("Title", formData.title)
-      form.append("Description", formData.description)
-      form.append("Rooms", String(formData.rooms))
-      form.append("Bathrooms", String(formData.bathrooms))
-      form.append("Parking", String(formData.parking))
-      form.append("Area", String(formData.area))
-      form.append("State", formData.state)
-      form.append("City", formData.city)
-      form.append("Neighborhood", formData.neighborhood)
-      form.append("Price", String(formData.price))
-      form.append("OwnerId", formData.ownerId)
-  
-      // 👇 File inputs must be appended using the PascalCase "Images"
-      formData.images?.forEach((img) => {
-        form.append("Images", img)
-      })
-  
-      // 👇 Edit mode specific fields
-      if (mode === "edit" && initialData?.propertyId) {
-        form.append("PropertyId", initialData.propertyId)
-  
-        if (initialData.removeImageUrls?.length) {
-          initialData.removeImageUrls.forEach((url) => {
-            form.append("RemoveImageUrls", url)
-          })
-        }
-  
-        await updateProperty(initialData.propertyId, form)
-      } else {
-        await createProperty(form)
+// In your PropertyForm component, modify the handleSubmit function:
+const handleSubmit = async () => {
+  try {
+    toaster.loading({ title: mode === "add" ? "Creating..." : "Updating..." });
+
+    const form = new FormData();
+    form.append("Title", formData.title);
+    form.append("Description", formData.description);
+    form.append("Rooms", String(formData.rooms));
+    form.append("Bathrooms", String(formData.bathrooms));
+    form.append("Parking", String(formData.parking));
+    form.append("Area", String(formData.area));
+    form.append("State", formData.state);
+    form.append("City", formData.city);
+    form.append("Neighborhood", formData.neighborhood);
+    form.append("Price", String(formData.price));
+    form.append("OwnerId", formData.ownerId);
+
+    if (mode === "edit" && initialData?.propertyId) {
+      form.append("PropertyId", initialData.propertyId);
+      if (initialData.removeImageUrls) {
+        initialData.removeImageUrls.forEach(url => {
+          form.append("RemoveImageUrls", url);
+        });
       }
-  
-      toaster.success({
-        title: `Property ${mode === "add" ? "added" : "updated"} successfully`,
-      })
-      onSuccess()
-    } catch (err) {
-      console.error(err)
-      toaster.error({
-        title: "Something went wrong",
-        description: "Check your inputs or try again.",
-      })
     }
+
+    if (formData.images && formData.images.length > 0) {
+      formData.images.forEach((img) => {
+        form.append("Images", img);
+      });
+    }
+
+    if (mode === "edit" && initialData?.propertyId) {
+      await updateProperty(initialData.propertyId, form); // ✅ use the imported service
+    } else {
+      await createProperty(form); // ✅ use the imported service
+    }
+    
+
+    toaster.success({
+      title: `Property ${mode === "add" ? "added" : "updated"} successfully`,
+    });
+    onSuccess();
+  } catch (err) {
+    console.error("Submission error:", err);
+    toaster.error({
+      title: "Submission failed",
+      description: "Please check your inputs"
+    });
   }
-  
+};
+
+// In your delete functionality (DashboardProperties component):
+const handleDelete = async (id: string) => {
+  try {
+    await api.delete(`/properties/${id}`);
+    toaster.success({ title: "Property deleted" });
+    // load();
+  } catch {
+    toaster.error({ title: "Delete failed" });
+  }
+};
   
 
   return (
@@ -138,5 +153,5 @@ export default function PropertyForm({ mode, initialData, onSuccess, onCancel }:
         <Button variant="outline" onClick={onCancel}>Cancel</Button>
       </VStack>
     </Box>
-  )
+  );
 }
