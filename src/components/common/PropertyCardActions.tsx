@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { HStack, IconButton } from "@chakra-ui/react"
-import { FiEdit, FiTrash2 } from "react-icons/fi"
+import { HStack, IconButton } from "@chakra-ui/react";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 
 interface PropertyCardActionsProps {
-  onEdit: () => void
-  onDelete: () => void
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
 export default function PropertyCardActions({ onEdit, onDelete }: PropertyCardActionsProps) {
@@ -17,20 +17,18 @@ export default function PropertyCardActions({ onEdit, onDelete }: PropertyCardAc
         rounded="full"
         bgColor="white"
         _dark={{ bgColor: "gray.700" }}
+        icon={<FiEdit />}
         onClick={onEdit}
-      >
-        <FiEdit />
-      </IconButton>
+      />
       <IconButton
         aria-label="Delete Property"
         size="sm"
         rounded="full"
         bgColor="white"
         _dark={{ bgColor: "gray.700" }}
+        icon={<FiTrash2 />}
         onClick={onDelete}
-      >
-        <FiTrash2 />
-      </IconButton>
+      />
     </HStack>
-  )
+  );
 }
