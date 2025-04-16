@@ -24,38 +24,47 @@ export const getPropertyById = async (id: string): Promise<Property> => {
     return res.data
 }
 
-export const createProperty = async (data: FormData): Promise<Property> => {
-  const token = localStorage.getItem("token")
-  const res = await api.post("/properties/with-files", data, {
+export const createProperty = async (form: FormData) => {
+  const token = localStorage.getItem("token");
+  
+  try {
+    const res = await api.post("/properties/with-files", form, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+      transformRequest: (data) => data, // Prevent axios from transforming FormData
+    });
+    return res.data;
+  } catch (err) {
+    console.error("API Error");
+    throw err;
+  }
+};
+
+export const updateProperty = async (id: string, form: FormData) => {
+  const res = await api.put(`/properties/${id}`, form, {
+    // 🔁 NO Authorization header now
     headers: {
-      Authorization: `Bearer ${token}`,
-      // ❌ DO NOT include 'Content-Type' here
+      "Content-Type": "multipart/form-data",
     },
-  })
-  return res.data
-}
-
-export const updateProperty = async (id: string, data: FormData): Promise<void> => {
-  const token = localStorage.getItem("token")
-  await api.put(`/properties/${id}`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      // ❌ DO NOT include 'Content-Type' here
-    },
-  })
-}
+  });
+  return res.data;
+};
 
 
 
-export const deleteProperty = async (id: string): Promise<void> => {
-  const token = localStorage.getItem("token")
 
-  await api.delete(`/properties/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-}
+export const deleteProperty = async (id: string) => {
+  const token = localStorage.getItem("token");
+
+  const res = await api.delete(`/properties/${id}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+
+  return res.data;
+};
+
+
 export const getPropertiesByOwnerId = async (ownerId: string): Promise<Property[]> => {
   const res = await api.get("/properties", { params: { ownerId } })
   return res.data
