@@ -1,42 +1,48 @@
 "use client"
 
-import { Box, Heading, VStack } from "@chakra-ui/react"
+import { useEffect, useState } from "react"
+import { Box, Heading, Spinner, VStack } from "@chakra-ui/react"
 import PropertyGrid from "./PropertyGrid"
 import { PropertyCardProps } from "./PropertyCard"
+import { getAllProperties } from "@/services/propertyService"
 
-const featuredData: PropertyCardProps[] = [
-    {
-        id: "1",
-        title: "Modern Downtown Apartment",
-        address: "New York, NY",
-        price: "$850,000",
-        imageUrl: "/placeholder.jpeg",
-    },
-    {
-        id: "2",
-        title: "Luxury Villa",
-        address: "Miami, FL",
-        price: "$1,200,000",
-        imageUrl: "/placeholder.jpeg",
-    },
-    {
-        id: "3",
-        title: "Cozy Studio",
-        address: "San Francisco, CA",
-        price: "$495,000",
-        imageUrl: "/placeholder.jpeg",
-    },
-    ]
+export default function FeaturedListings() {
+  const [featured, setFeatured] = useState<PropertyCardProps[]>([])
+  const [loading, setLoading] = useState(true)
 
-    export default function FeaturedListings() {
-    return (
-        <Box px={6} py={12}>
-        <VStack gap={6} align="center" maxW="7xl" mx="auto" textAlign="center">
-            <Heading size="2xl" fontWeight="bold">
-            Featured Properties
-            </Heading>
-            <PropertyGrid properties={featuredData} />
-        </VStack>
-        </Box>
-    )
+  useEffect(() => {
+    const loadFeatured = async () => {
+      try {
+        const res = await getAllProperties({ page: 1, pageSize: 3 })
+        const transformed: PropertyCardProps[] = res.properties.map((p) => ({
+          id: p.propertyId,
+          title: p.title,
+          address: `${p.city}, ${p.state}, ${p.neighborhood}`,
+          price: `RM ${p.price.toLocaleString()}`,
+          imageUrl:
+            p.images && p.images.length > 0
+              ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${p.images[0]}`
+              : "/placeholder.jpeg",
+        }))
+        setFeatured(transformed)
+      } catch (err) {
+        console.error("Failed to load featured listings:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadFeatured()
+  }, [])
+
+  return (
+    <Box px={6} py={12}>
+      <VStack gap={6} align="center" maxW="7xl" mx="auto" textAlign="center">
+        <Heading size="2xl" fontWeight="bold">
+          Featured Properties
+        </Heading>
+        {loading ? <Spinner size="lg" /> : <PropertyGrid properties={featured} />}
+      </VStack>
+    </Box>
+  )
 }

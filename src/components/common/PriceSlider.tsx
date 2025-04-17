@@ -32,7 +32,7 @@ import {
         >
             <HStack justify="space-between" mb={2}>
             <Slider.Label>Price Range</Slider.Label>
-            <Slider.ValueText>{`$${value.toLocaleString()}`}</Slider.ValueText>
+            <Slider.ValueText>{`RM${value.toLocaleString()}`}</Slider.ValueText>
             </HStack>
 
             <Slider.Control>

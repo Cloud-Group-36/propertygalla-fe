@@ -4,19 +4,28 @@ import {
 
 } from "@/types/index"
 
+export interface PaginatedPropertyResponse {
+  properties: Property[]
+  currentPage: number
+  totalPages: number
+  totalCount: number
+  pageSize: number
+
+}
+
 export const getAllProperties = async (
-    filters?: {
-      state?: string
-      city?: string
-      rooms?: number
-      bathrooms?: number
-      status?: string
-      page?: number
-      pageSize?: number
-    }
-  ): Promise<Property[]> => {
-    const res = await api.get<Property[]>("/properties", { params: filters })
-    return res.data
+  filters?: {
+    state?: string
+    city?: string
+    rooms?: number
+    bathrooms?: number
+    status?: string
+    page?: number
+    pageSize?: number
+  }
+): Promise<PaginatedPropertyResponse> => {
+  const res = await api.get<PaginatedPropertyResponse>("/properties", { params: filters })
+  return res.data
 }
 
 export const getPropertyById = async (id: string): Promise<Property> => {
@@ -65,7 +74,11 @@ export const deleteProperty = async (id: string) => {
 };
 
 
-export const getPropertiesByOwnerId = async (ownerId: string): Promise<Property[]> => {
-  const res = await api.get("/properties", { params: { ownerId } })
+export const getPropertiesByOwnerId = async (
+  ownerId: string,
+  page = 1,
+  pageSize = 10
+): Promise<PaginatedPropertyResponse> => {
+  const res = await api.get("/properties", { params: { ownerId, page, pageSize } })
   return res.data
 }

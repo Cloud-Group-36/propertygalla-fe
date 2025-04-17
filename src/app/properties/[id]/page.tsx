@@ -35,8 +35,6 @@ export default function SpecificPropertyPage() {
   return (
     <PropertyDetails
       {...property}
-      phone="N/A" // Replace with actual contact later
-      email="N/A"
     />
   )
 }

@@ -68,8 +68,11 @@ export default function PropertyCard({
         h="200px"
         objectFit="cover"
         onError={(e) => {
-          e.currentTarget.onerror = null
-          e.currentTarget.src = "/placeholder.jpeg"
+          const img = e.currentTarget;
+          if (!img?.naturalWidth) {
+            img.onerror = null;
+            img.src = "/placeholder.jpeg";
+          }
         }}
       />
 

@@ -7,20 +7,28 @@ import {
   Button,
 } from "@chakra-ui/react"
 import { HiChevronDown } from "react-icons/hi"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 interface DropdownFilterProps {
     label: string
     options: { label: string; value: string }[]
     onChange?: (value: string) => void
+    value?: string
     }
 
     export default function DropdownFilter({
     label,
     options,
+    value,
     onChange,
     }: DropdownFilterProps) {
     const [selected, setSelected] = useState("")
+
+    useEffect(() =>{
+        if (value !== undefined){
+            setSelected(value)
+        }
+    }, [value])
 
     const handleSelect = (value: string) => {
         setSelected(value)

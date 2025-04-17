@@ -105,3 +105,65 @@ export interface UpdatePropertyDTO extends CreatePropertyDTO {
     removeImageUrls?: string[]
 }
   
+
+// Admin types:
+export interface AdminUser {
+    userId: string
+    name: string
+    email: string
+    phone: string
+    role: string
+    createdAt: string
+}
+
+export interface AdminProperty {
+    propertyId: string
+    title: string
+    ownerId: string
+    price: number
+    status: string
+    city: string
+}
+
+
+export interface Report {
+    reportId: string
+    reporterId: string
+    propertyId: string
+    reason: string
+    status: "pending" | "reviewed" | "dismissed" | "handled"
+    note?: string
+    createdAt: string
+}
+
+
+export interface DashboardStats {
+    totalUsers: number
+    totalProperties: number
+    totalReports: number
+    recentReports: {
+        title: string
+        author: string
+        createdAt: string
+    }[]
+}
+
+export interface RecentReport {
+    title: string
+    author: string
+    timeAgo: string
+}
+
+export interface GetReportsResponse {
+    reports: Report[]
+    currentPage: number
+    totalPages: number
+    totalCount: number
+    pageSize: number
+}
+  
+export interface UpdateReportStatusDTO {
+    reportId: string
+    status: string
+    note: string
+}

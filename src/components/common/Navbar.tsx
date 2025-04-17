@@ -16,14 +16,14 @@ import {
   Spacer,
   HStack,
 } from "@chakra-ui/react"
-import { ColorModeButton, useColorModeValue } from "../ui/color-mode"
+import {  useColorModeValue } from "../ui/color-mode"
 import Link from "next/link"
 import { useState } from "react"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/context/AuthContext"
 import { HiMenu } from "react-icons/hi"
 import { FaHome, FaBuilding, FaUserCircle, FaHeart, FaDoorOpen, FaSignOutAlt } from "react-icons/fa"
-import LogoutModal from "./LogoutModal"
+import ConfirmDialog from "./ConfirmDialog"
 
 export default function Navbar() {
     const [open, setOpen] = useState(false)
@@ -96,7 +96,6 @@ export default function Navbar() {
                 </Link>
             )}
 
-            <ColorModeButton />
             </HStack>
 
             <IconButton
@@ -161,13 +160,12 @@ export default function Navbar() {
                     </Link>
                 )}
 
-                <ColorModeButton />
                 </VStack>
             </DrawerBody>
             </DrawerContent>
         </Drawer.Root>
 
-        <LogoutModal
+        <ConfirmDialog
             isOpen={showLogoutDialog}
             onClose={() => setShowLogoutDialog(false)}
             onConfirm={() => {

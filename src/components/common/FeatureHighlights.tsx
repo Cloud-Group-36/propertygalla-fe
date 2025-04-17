@@ -2,51 +2,59 @@
 
 import { Box, VStack, HStack, Text, Icon, Heading } from "@chakra-ui/react"
 import { FaShieldAlt, FaUserCheck, FaLock } from "react-icons/fa"
+import { useColorModeValue } from "../ui/color-mode"
 
 const features = [
-    {
-        icon: FaShieldAlt,
-        title: "Verified Listings",
-        description: "All our properties are verified by our expert team for authenticity.",
-    },
-    {
-        icon: FaUserCheck,
-        title: "Trusted Owners",
-        description: "Connect with verified property owners and trusted agencies.",
-    },
-    {
-        icon: FaLock,
-        title: "Secure Transactions",
-        description: "Your payments and personal data are always protected.",
-    },
-    ]
+  {
+    icon: FaShieldAlt,
+    title: "List & Rent with Confidence",
+    description:
+      "Whether you're renting or listing, all properties undergo thorough verification for peace of mind.",
+  },
+  {
+    icon: FaUserCheck,
+    title: "Verified & Trusted Users",
+    description:
+      "Connect with a community of verified property owners and renters who value transparency.",
+  },
+  {
+    icon: FaLock,
+    title: "Security First",
+    description:
+      "Your personal data and transactions are protected by industry-standard security protocols.",
+  },
+]
 
-    export default function FeatureHighlights() {
-    return (
-        <Box px={6} py={12}>
-        <HStack
-            justify="space-between"
-            align="stretch"
-            flexWrap="wrap"
-            gap={8}
-        >
-            {features.map((feature) => (
-            <VStack
-                key={feature.title}
-                align="center"
-                textAlign="center"
-                maxW="sm"
-                flex={1}
-                gap={3}
-            >
-                <Icon as={feature.icon} boxSize={8} />
-                <Heading size="md">{feature.title}</Heading>
-                <Text fontSize="sm" color="gray.600">
-                {feature.description}
-                </Text>
-            </VStack>
-            ))}
-        </HStack>
-        </Box>
-    )
+export default function FeatureHighlights() {
+  const textColor = useColorModeValue("gray.600", "gray.300")
+
+  return (
+    <Box px={6} py={16} bg={useColorModeValue("gray.50", "gray.900")}>
+      <HStack
+        justify="space-between"
+        align="stretch"
+        flexWrap="wrap"
+        gap={10}
+        maxW="7xl"
+        mx="auto"
+      >
+        {features.map((feature) => (
+          <VStack
+            key={feature.title}
+            align="center"
+            textAlign="center"
+            maxW="sm"
+            flex={1}
+            gap={4}
+          >
+            <Icon as={feature.icon} boxSize={10} color="var(--accent-sky)" />
+            <Heading size="md">{feature.title}</Heading>
+            <Text fontSize="sm" color={textColor}>
+              {feature.description}
+            </Text>
+          </VStack>
+        ))}
+      </HStack>
+    </Box>
+  )
 }

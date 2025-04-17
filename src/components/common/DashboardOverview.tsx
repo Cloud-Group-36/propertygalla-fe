@@ -6,20 +6,19 @@ import { FaHome, FaEnvelope, FaEye } from "react-icons/fa"
 import { useEffect, useState } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { getPropertiesByOwnerId } from "@/services/propertyService"
-import { Property } from "@/types"
 import { toaster } from "@/components/ui/toaster"
 
 export default function DashboardOverview() {
   const { user } = useAuth()
-  const [properties, setProperties] = useState<Property[]>([])
+  const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         if (!user?.userId) return
-        const data = await getPropertiesByOwnerId(user.userId)
-        setProperties(data)
+        const res = await getPropertiesByOwnerId(user.userId, 1, 1) // only fetching to get totalCount
+        setTotalCount(res.totalCount)
       } catch (error) {
         console.error(error)
         toaster.error({ title: "Failed to load stats" })
@@ -44,7 +43,7 @@ export default function DashboardOverview() {
         <Spinner size="lg" />
       ) : (
         <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap={5}>
-          <DashboardStatCard label="Active Listings" value={properties.length} icon={<FaHome />} />
+          <DashboardStatCard label="Active Listings" value={totalCount} icon={<FaHome />} />
           <DashboardStatCard label="New Messages" value={0} icon={<FaEnvelope />} />
           <DashboardStatCard label="Total Views" value="1,234" icon={<FaEye />} />
         </SimpleGrid>
