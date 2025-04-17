@@ -68,7 +68,6 @@ export default function PropertyForm({
 
   const handleSubmit = async () => {
     try {
-      toaster.loading({ title: mode === "add" ? "Creating..." : "Updating..." });
 
       const form = new FormData();
       form.append("Title", formData.title);

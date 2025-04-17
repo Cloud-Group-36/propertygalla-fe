@@ -35,12 +35,6 @@ export default function AuthForm() {
 
   const handleSubmit = async () => {
     try {
-      toaster.dismiss()
-      toaster.create({
-        type: "loading",
-        title: isSignup ? "Creating account..." : "Signing in...",
-      })
-
       if (isSignup) {
         if (formData.password !== formData.confirmPassword) {
           toaster.create({
@@ -49,7 +43,7 @@ export default function AuthForm() {
           })
           return
         }
-
+  
         const payload: RegisterDto = {
           name: formData.name,
           email: formData.email,
@@ -57,42 +51,43 @@ export default function AuthForm() {
           phone: formData.phone,
           role: "user", // default role
         }
-
+  
         await registerUser(payload)
+  
         toaster.create({
           type: "success",
           title: "Registration successful",
           description: "You can now sign in",
         })
+  
         setMode("signin")
       } else {
         const payload: LoginDto = {
           email: formData.email,
           password: formData.password,
         }
-
+  
         const response = await loginUser(payload)
         login(response.user, response.token)
-        router.push(`/dashboard`).then(() => {
-            window.location.reload()
-        }) 
-        toaster.create({
-          type: "success",
-          title: `Welcome, ${response.user.name}`,
-        })
+  
+        await router.push("/dashboard")
+  
+
       }
     } catch (err: unknown) {
-        const message = isAxiosError(err) && err.response?.data?.message
+      const message =
+        isAxiosError(err) && err.response?.data?.message
           ? err.response.data.message
           : "Something went wrong"
-      
-        toaster.create({
-          type: "error",
-          title: "Authentication failed",
-          description: message,
-        })
-      }
+  
+      toaster.create({
+        type: "error",
+        title: "Authentication failed",
+        description: message,
+      })
+    }
   }
+  
 
   return (
     <Box

@@ -45,7 +45,9 @@ export default function MySavedListPage() {
             title: p.title,
             address: `${p.city}, ${p.state}, ${p.neighborhood}`,
             price: `RM ${p.price.toLocaleString()}`,
-            imageUrl: p.images?.[0] || "/placeholder.jpeg",
+            imageUrl:p.images && p.images.length > 0
+              ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${p.images[0]}`
+              : "/placeholder.jpeg",
             actions: (
               <Button
                 size="sm"

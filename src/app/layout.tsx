@@ -3,6 +3,7 @@ import "./globals.css"
 import { Provider } from "@/components/ui/provider"
 import LayoutClientWrapper from "@/components/common/LayoutClientWrapper"
 import { AuthProvider } from "@/context/AuthContext"
+import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
   title: "PropertyGalla",
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
             <LayoutClientWrapper>
               {children}
+              <Toaster />
             </LayoutClientWrapper>
           </AuthProvider>
         </Provider>
