@@ -79,12 +79,14 @@ export default function AuthForm() {
         isAxiosError(err) && err.response?.data?.message
           ? err.response.data.message
           : "Something went wrong"
+
+         console.error(message);
   
-      toaster.create({
-        type: "error",
-        title: "Authentication failed",
-        description: message,
-      })
+      // toaster.create({
+      //   type: "error",
+      //   title: "Authentication failed",
+      //   description: message,
+      // })
     }
   }
   

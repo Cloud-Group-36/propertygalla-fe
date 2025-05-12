@@ -1,7 +1,7 @@
 import axios from "axios"
 
 const api = axios.create({
-  baseURL: "http://localhost:5200/api", 
+  baseURL: "http://propertygalla-dev.us-east-1.elasticbeanstalk.com/api", 
   headers: {
     "Content-Type": "application/json",
   },

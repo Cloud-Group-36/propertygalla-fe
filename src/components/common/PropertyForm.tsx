@@ -66,55 +66,57 @@ export default function PropertyForm({
     }
   };
 
-  const handleSubmit = async () => {
-    try {
+const handleSubmit = async () => {
+  try {
+    const form = new FormData();
+    form.append("title", formData.title);
+    form.append("description", formData.description);
+    form.append("rooms", String(formData.rooms));
+    form.append("bathrooms", String(formData.bathrooms));
+    form.append("parking", String(formData.parking));
+    form.append("area", String(formData.area));
+    form.append("state", formData.state);
+    form.append("city", formData.city);
+    form.append("neighborhood", formData.neighborhood);
+    form.append("price", String(formData.price));
+    form.append("ownerId", formData.ownerId);
 
-      const form = new FormData();
-      form.append("Title", formData.title);
-      form.append("Description", formData.description);
-      form.append("Rooms", String(formData.rooms));
-      form.append("Bathrooms", String(formData.bathrooms));
-      form.append("Parking", String(formData.parking));
-      form.append("Area", String(formData.area));
-      form.append("State", formData.state);
-      form.append("City", formData.city);
-      form.append("Neighborhood", formData.neighborhood);
-      form.append("Price", String(formData.price));
-      form.append("OwnerId", formData.ownerId);
+    if (mode === "edit" && initialData?.propertyId) {
+      form.append("propertyId", initialData.propertyId);
 
-      if (mode === "edit" && initialData?.propertyId) {
-        form.append("PropertyId", initialData.propertyId);
-        if (initialData.removeImageUrls) {
-          initialData.removeImageUrls.forEach((url) => {
-            form.append("RemoveImageUrls", url);
-          });
-        }
-      }
-
-      if (formData.images && formData.images.length > 0) {
-        formData.images.forEach((img) => {
-          form.append("Images", img);
+      // Optional: If tracking removed images by ID
+      if (initialData.removeImageUrls && initialData.removeImageUrls.length > 0) {
+        initialData.removeImageUrls.forEach((id) => {
+          form.append("removeImageUrls", id); // match backend logic
         });
       }
+    }
 
-      if (mode === "edit" && initialData?.propertyId) {
-        await updateProperty(initialData.propertyId, form);
-      } else {
-        await createProperty(form);
-      }
-
-      toaster.success({
-        title: `Property ${mode === "add" ? "added" : "updated"} successfully`,
-      });
-      onSuccess();
-    } catch (err) {
-      console.error("Submission error:", err);
-      toaster.error({
-        title: "Submission failed",
-        description: "Please check your inputs",
+    if (formData.images && formData.images.length > 0) {
+      formData.images.forEach((img) => {
+        form.append("images", img); // ✅ lower case 'images' as used in backend
       });
     }
-  };
+
+    if (mode === "edit" && initialData?.propertyId) {
+      await updateProperty(initialData.propertyId, form);
+    } else {
+      await createProperty(form);
+    }
+
+    toaster.success({
+      title: `Property ${mode === "add" ? "added" : "updated"} successfully`,
+    });
+    onSuccess();
+  } catch (err) {
+    console.error("Submission error:", err);
+    toaster.error({
+      title: "Submission failed",
+      description: "Please check your inputs or try again.",
+    });
+  }
+};
+
 
   return (
     <Box

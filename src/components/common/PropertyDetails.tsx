@@ -124,32 +124,42 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
       <Flex direction={{ base: "column", md: "row" }} gap={10} align="start">
         <Box flex={1.5} maxW={{ base: "100%", md: "60%" }}>
           <Slider {...sliderSettings}>
-          {images.length > 0 ? (
-            images.map((url, index) => (
+            {images.length > 0 ? (
+              images.map((img, index) => {
+                const imagePath = img?.imageUrl || ""
+                const isFullUrl = imagePath.startsWith("http")
+                const fullUrl = isFullUrl
+                  ? imagePath
+                  : `${process.env.NEXT_PUBLIC_BACKEND_URL}${imagePath}`
+
+                return (
+                  <Image
+                    key={index}
+                    src={fullUrl}
+                    alt={`Property image ${index + 1}`}
+                    borderRadius="xl"
+                    maxH="450px"
+                    objectFit="cover"
+                    w="full"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null
+                      e.currentTarget.src = "/placeholder.jpeg"
+                    }}
+                  />
+                )
+              })
+            ) : (
               <Image
-                key={index}
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}` || "/placeholder.jpeg"}
-                alt={`Property image ${index + 1}`}
+                src="/placeholder.jpeg"
+                alt="Placeholder property"
                 borderRadius="xl"
                 maxH="450px"
                 objectFit="cover"
                 w="full"
-                onError={(e) => {
-                  e.currentTarget.onerror = null
-                  e.currentTarget.src = "/placeholder.jpeg"
-                }}
               />
-            ))
-          ) : (
-            <Image
-              src="/placeholder.jpeg"
-              alt="Placeholder property"
-              borderRadius="xl"
-              maxH="450px"
-              objectFit="cover"
-              w="full"
-            />
-          )}
+            )}
+
+
 
           </Slider>
         </Box>

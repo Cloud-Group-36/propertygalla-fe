@@ -14,16 +14,18 @@ export default function FeaturedListings() {
     const loadFeatured = async () => {
       try {
         const res = await getAllProperties({ page: 1, pageSize: 3 })
-        const transformed: PropertyCardProps[] = res.properties.map((p) => ({
-          id: p.propertyId,
-          title: p.title,
-          address: `${p.city}, ${p.state}, ${p.neighborhood}`,
-          price: `RM ${p.price.toLocaleString()}`,
-          imageUrl:
-            p.images && p.images.length > 0
-              ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${p.images[0]}`
-              : "/placeholder.jpeg",
-        }))
+        const transformed: PropertyCardProps[] = res.properties.map((p) => {
+          const firstImage = p.images?.[0]?.imageUrl ?? null;
+
+          return {
+            id: p.propertyId,
+            title: p.title,
+            address: `${p.city}, ${p.state}, ${p.neighborhood}`,
+            price: `RM ${p.price.toLocaleString()}`,
+            imageUrl: firstImage || "/placeholder.jpeg",
+          };
+        });
+
         setFeatured(transformed)
       } catch (err) {
         console.error("Failed to load featured listings:", err)

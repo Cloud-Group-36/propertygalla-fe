@@ -117,10 +117,10 @@ export default function DashboardProperties() {
         <>
           <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap={6} mb={10}>
             {properties.map((p) => {
-              const resolvedImageUrl =
-                p.images && p.images.length > 0
-                  ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${p.images[0]}`
-                  : "/placeholder.jpeg"
+            const resolvedImageUrl =
+              p.images && p.images.length > 0 && p.images[0].imageUrl
+                ? p.images[0].imageUrl
+                : "/placeholder.jpeg"
 
               return (
                 <PropertyCard
@@ -148,7 +148,7 @@ export default function DashboardProperties() {
                           price: p.price,
                           ownerId: p.ownerId,
                           images: [],
-                          removeImageUrls: p.images || [],
+                          removeImageUrls: p.images.map((img) => img.imageUrl) || [],
                         })
                         setShowForm(true)
                       }}

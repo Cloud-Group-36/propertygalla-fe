@@ -114,6 +114,7 @@ export default function DashboardAccount() {
             value={formData.name}
             onChange={handleChange}
             isRequired
+            disabled={true}
           />
           <Field
             name="email"
@@ -122,6 +123,8 @@ export default function DashboardAccount() {
             value={formData.email}
             onChange={handleChange}
             isRequired
+            disabled={true}
+
           />
           <Field
             name="phone"
@@ -129,6 +132,8 @@ export default function DashboardAccount() {
             type="number"
             value={formData.phone}
             onChange={handleChange}
+            disabled={true}
+
           />
 
           <Text fontWeight="semibold" mt={6}>Change Password</Text>

@@ -54,7 +54,7 @@ import {
                 Full Name
                 <Field.RequiredIndicator />
                 </Field.Label>
-                <Input name="name" value={formData.name} onChange={handleChange} />
+                <Input name="name" value={formData.name} onChange={handleChange} disabled={true} />
             </Field.Root>
 
             <Field.Root required>
@@ -62,7 +62,7 @@ import {
                 Email Address
                 <Field.RequiredIndicator />
                 </Field.Label>
-                <Input name="email" type="email" value={formData.email} onChange={handleChange} />
+                <Input name="email" type="email" value={formData.email} onChange={handleChange} disabled={true} />
             </Field.Root>
 
             <Field.Root>

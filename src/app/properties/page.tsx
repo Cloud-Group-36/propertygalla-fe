@@ -31,15 +31,28 @@ export default function PropertiesPage() {
         setLoading(true)
         const res = await getAllProperties({ page: currentPage, pageSize })
         setTotalCount(res.totalCount)
-        const transformed = res.properties.map((p) => ({
-          id: p.propertyId,
-          title: p.title,
-          address: `${p.city}, ${p.state}, ${p.neighborhood}`,
-          price: `RM ${p.price.toLocaleString()}`,
-          imageUrl:
-          p.images && p.images.length > 0
-            ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${p.images[0]}`
-            : "/placeholder.jpeg",        }))
+        const transformed = res.properties.map((p) => {
+          const firstImage = p.images?.[0] as { imageUrl: string } | undefined;
+          const rawUrl = firstImage?.imageUrl || "";
+
+          const isFullURL = rawUrl.startsWith("http");
+
+          return {
+            id: p.propertyId,
+            title: p.title,
+            address: `${p.city}, ${p.state}, ${p.neighborhood}`,
+            price: `RM ${p.price.toLocaleString()}`,
+            imageUrl: rawUrl
+              ? isFullURL
+                ? rawUrl
+                : `${process.env.NEXT_PUBLIC_BACKEND_URL}${rawUrl}`
+              : "/placeholder.jpeg",
+          };
+        });
+
+
+
+
         setProperties(transformed)
       } catch (err) {
         console.error("Failed to fetch properties:", err)

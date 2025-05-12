@@ -51,8 +51,7 @@ export interface Property {
     status: "available" | "rented" | "hidden"
     createdAt: string
     updatedAt: string
-    images?: string[] 
-}
+    images: { imageUrl: string }[]}
 
 
 export interface SavedPropertyDto {
