@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 import {
   Box,
   Heading,
@@ -8,84 +8,94 @@ import {
   Text,
   Spinner,
   Button,
-} from "@chakra-ui/react"
-import PropertyCard from "@/components/common/PropertyCard"
-import PropertyCardActions from "@/components/common/PropertyCardActions"
-import PropertyForm from "@/components/common/PropertyForm"
-import ConfirmDialog from "@/components/common/ConfirmDialog"
-import { toaster } from "@/components/ui/toaster"
+} from "@chakra-ui/react";
+import PropertyCard from "@/components/common/PropertyCard";
+import PropertyCardActions from "@/components/common/PropertyCardActions";
+import PropertyForm from "@/components/common/PropertyForm";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
+import { toaster } from "@/components/ui/toaster";
 import {
   getPropertiesByOwnerId,
   deleteProperty,
-} from "@/services/propertyService"
-import { useAuth } from "@/context/AuthContext"
-import { Property, UpdatePropertyDTO } from "@/types"
-import AdminPagination from "@/components/common/AdminPagination"
+} from "@/services/propertyService";
+import { useAuth } from "@/context/AuthContext";
+import { Property, UpdatePropertyDTO } from "@/types";
+import AdminPagination from "@/components/common/AdminPagination";
 import { IoIosAddCircleOutline } from "react-icons/io";
 
-
 export default function DashboardProperties() {
-  const { user } = useAuth()
-  const [properties, setProperties] = useState<Property[]>([])
-  const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
-  const [editData, setEditData] = useState<UpdatePropertyDTO | null>(null)
+  const { user } = useAuth();
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editData, setEditData] = useState<UpdatePropertyDTO | null>(null);
 
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalCount, setTotalCount] = useState(0)
-  const pageSize = 6
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 6;
 
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const load = async () => {
     try {
-      if (!user?.userId) return
-      setLoading(true)
-      const res = await getPropertiesByOwnerId(user.userId, currentPage, pageSize)
-      setProperties(res.properties)
-      setTotalCount(res.totalCount)
+      if (!user?.userId) return;
+      setLoading(true);
+
+      const res = await getPropertiesByOwnerId(
+        user.userId,
+        currentPage,
+        pageSize
+      );
+
+      // ✅ Extra client-side check (fallback if backend is not filtering)
+      const filtered = res.properties.filter((p) => p.ownerId === user.userId);
+
+      setProperties(filtered);
+      setTotalCount(filtered.length); // update this if using filtered data
     } catch (err) {
-      console.error(err)
-      toaster.error({ title: "Failed to load properties" })
+      console.error(err);
+      toaster.error({ title: "Failed to load properties" });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    load()
-  }, [user, currentPage])
+    load();
+  }, [user, currentPage]);
 
   const triggerDelete = (id: string) => {
-    setPendingDeleteId(id)
-    setConfirmOpen(true)
-  }
+    setPendingDeleteId(id);
+    setConfirmOpen(true);
+  };
 
   const confirmDelete = async () => {
-    if (!pendingDeleteId) return
+    if (!pendingDeleteId) return;
     try {
-      await deleteProperty(pendingDeleteId)
-      toaster.success({ title: "Property deleted" })
-      setConfirmOpen(false)
-      setPendingDeleteId(null)
-      load()
+      await deleteProperty(pendingDeleteId);
+      toaster.success({ title: "Property deleted" });
+      setConfirmOpen(false);
+      setPendingDeleteId(null);
+      load();
     } catch {
-      toaster.error({ title: "Delete failed" })
+      toaster.error({ title: "Delete failed" });
     }
-  }
+  };
 
   return (
     <Box>
-      <Heading size="md" mb={4}>My Properties</Heading>
+      <Heading size="md" mb={4}>
+        My Properties
+      </Heading>
 
       <Button
         bg={"skyblue"}
         color="white"
         mb={4}
         onClick={() => {
-          setShowForm(true)
-          setEditData(null)
+          setShowForm(true);
+          setEditData(null);
         }}
       >
         Add New Property
@@ -97,12 +107,12 @@ export default function DashboardProperties() {
           mode={editData ? "edit" : "add"}
           initialData={editData || undefined}
           onCancel={() => {
-            setShowForm(false)
-            setEditData(null)
+            setShowForm(false);
+            setEditData(null);
           }}
           onSuccess={() => {
-            setShowForm(false)
-            load()
+            setShowForm(false);
+            load();
           }}
         />
       )}
@@ -117,10 +127,10 @@ export default function DashboardProperties() {
         <>
           <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap={6} mb={10}>
             {properties.map((p) => {
-            const resolvedImageUrl =
-              p.images && p.images.length > 0 && p.images[0].imageUrl
-                ? p.images[0].imageUrl
-                : "/placeholder.jpeg"
+              const resolvedImageUrl =
+                p.images && p.images.length > 0 && p.images[0].imageUrl
+                  ? p.images[0].imageUrl
+                  : "/placeholder.jpeg";
 
               return (
                 <PropertyCard
@@ -132,31 +142,34 @@ export default function DashboardProperties() {
                   imageUrl={resolvedImageUrl}
                   disableLink
                   actions={
-                    <PropertyCardActions
-                      onEdit={() => {
-                        setEditData({
-                          propertyId: p.propertyId,
-                          title: p.title,
-                          description: p.description,
-                          rooms: p.rooms,
-                          bathrooms: p.bathrooms,
-                          parking: p.parking,
-                          area: p.area,
-                          state: p.state,
-                          city: p.city,
-                          neighborhood: p.neighborhood,
-                          price: p.price,
-                          ownerId: p.ownerId,
-                          images: [],
-                          removeImageUrls: p.images.map((img) => img.imageUrl) || [],
-                        })
-                        setShowForm(true)
-                      }}
-                      onDelete={() => triggerDelete(p.propertyId)}
-                    />
+                    p.ownerId === user?.userId ? (
+                      <PropertyCardActions
+                        onEdit={() => {
+                          setEditData({
+                            propertyId: p.propertyId,
+                            title: p.title,
+                            description: p.description,
+                            rooms: p.rooms,
+                            bathrooms: p.bathrooms,
+                            parking: p.parking,
+                            area: p.area,
+                            state: p.state,
+                            city: p.city,
+                            neighborhood: p.neighborhood,
+                            price: p.price,
+                            ownerId: p.ownerId,
+                            images: [],
+                            removeImageUrls:
+                              p.images.map((img) => img.imageUrl) || [],
+                          });
+                          setShowForm(true);
+                        }}
+                        onDelete={() => triggerDelete(p.propertyId)}
+                      />
+                    ) : null
                   }
                 />
-              )
+              );
             })}
           </SimpleGrid>
 
@@ -178,5 +191,5 @@ export default function DashboardProperties() {
         confirmLabel="Yes, Delete"
       />
     </Box>
-  )
+  );
 }
